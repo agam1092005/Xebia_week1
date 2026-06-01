@@ -55,12 +55,48 @@ This project demonstrates a complete CRUD (Create, Read, Update, Delete) managem
 
 ## Getting Started
 
-### Prerequisites
+### Option 1: Docker Compose with Blue-Green Deployment (Recommended)
+
+#### Prerequisites
+- Docker
+- Docker Compose
+
+#### Run
+
+```bash
+docker-compose up --build
+```
+
+This starts both blue and green deployments with load balancers for zero-downtime updates.
+
+#### Check Deployment Status
+
+```bash
+./scripts/deployment-status.sh
+```
+
+#### Switch Active Deployment
+
+```bash
+./scripts/switch-deployment.sh blue   # Switch to blue
+./scripts/switch-deployment.sh green  # Switch to green
+```
+
+To stop:
+```bash
+docker-compose down
+```
+
+---
+
+### Option 2: Local Development
+
+#### Prerequisites
 - Go 1.21 or higher
-- Node.js 18+ and npm
+- Node.js 20+ and npm
 - Git
 
-### Backend Setup
+#### Backend Setup
 
 ```bash
 cd backend
@@ -70,7 +106,7 @@ go run main.go
 
 The API will be available at `http://localhost:8080`
 
-### Frontend Setup
+#### Frontend Setup
 
 ```bash
 cd frontend
@@ -109,6 +145,35 @@ The application will be available at `http://localhost:3000`
 2. **Frontend Integration**: Created a Next.js app that consumes the API
 3. **CRUD Operations**: Implemented all four operations with proper error handling
 4. **Minimal UI**: Clean, functional interface without unnecessary complexity
+5. **Blue-Green Deployment**: Added zero-downtime deployment strategy
+
+## Blue-Green Deployment Strategy
+
+This project implements a blue-green deployment pattern for zero-downtime updates:
+
+### Architecture
+- **Backend**: Two instances (blue on 8080, green on 8081) behind Nginx load balancer
+- **Frontend**: Two instances (blue and green) behind Nginx load balancer
+- **Load Balancers**: Route traffic to healthy instances only
+
+### Benefits
+- ✅ **Zero Downtime**: Switch between deployments instantly
+- ✅ **Easy Rollback**: Revert to previous version with one command
+- ✅ **Testing**: Test new version before switching traffic
+- ✅ **Health Checks**: Automatic failover if deployment becomes unhealthy
+
+### Workflow
+1. Deploy new version to inactive (green) environment
+2. Run health checks on green deployment
+3. Switch traffic from blue to green using `./scripts/switch-deployment.sh green`
+4. Blue becomes standby for next deployment
+
+### CI/CD Integration
+GitHub Actions automatically:
+- Builds and tests on every commit
+- Builds Docker images for both backend and frontend
+- Pushes images to container registry
+- Provides deployment status summary
 
 ## Future Enhancements
 
@@ -117,3 +182,5 @@ The application will be available at `http://localhost:3000`
 - Task categories/tags
 - Due dates and reminders
 - User accounts
+- Kubernetes deployment manifests
+- Automated health checks and rollback
