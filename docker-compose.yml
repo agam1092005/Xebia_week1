@@ -24,12 +24,12 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - PORT=8081
+      - PORT=8080
       - DEPLOYMENT=green
     networks:
       - task-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 5
